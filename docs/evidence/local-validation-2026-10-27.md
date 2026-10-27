@@ -44,6 +44,8 @@ curl http://127.0.0.1:16686/api/v3/services
 
 The Jaeger trace response identified the service as `robot-shop-payment`, the Python OpenTelemetry SDK as `1.45.1`, HTTP 200 status attributes, and spans exported from both Kubernetes probes and Prometheus scrapes.
 
-## External limitation
+## GitHub Actions evidence
 
-GitHub Actions run [40481170000](https://github.com/Radiant-O/robot-shop/actions/runs/40481170000) was rejected before its first workflow step with GitHub's annotation: `The job was not started because your account is locked due to a billing issue.` The workflow itself therefore did not execute on a GitHub-hosted runner. Equivalent test, Helm, Trivy, image-build, and runtime checks were completed locally as recorded above.
+GitHub Actions run [40561069001](https://github.com/0x52616469616e74/robot-shop/actions/runs/40561069001) completed successfully on the public fork. The run executed the payment-service tests, rendered the application and observability Helm charts, passed the Trivy source/configuration/image scans, and published the immutable payment image to the public GitHub Container Registry package.
+
+An earlier run under the previous account was blocked before runner allocation by an account-level billing lock. Moving the public fork to `0x52616469616e74` removed that external blocker; no application workaround was required.
