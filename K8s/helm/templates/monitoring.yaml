@@ -1,0 +1,56 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: robot-shop-metrics
+  labels:
+    release: {{ .Values.monitoring.prometheusRelease }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      observability: prometheus
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: robot-shop-slo
+  labels:
+    release: {{ .Values.monitoring.prometheusRelease }}
+spec:
+  groups:
+    - name: robot-shop-slo
+      interval: 30s
+      rules:
+        - record: robot_shop:payment_error_ratio:rate5m
+          expr: |
+            sum(rate(http_requests_total{service="payment",status_code=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(http_requests_total{service="payment"}[5m])), 0.001)
+        - record: robot_shop:payment_latency_p95_seconds:rate5m
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (rate(http_request_duration_seconds_bucket{service="payment"}[5m]))
+            )
+        - alert: RobotShopPaymentErrorBudgetBurn
+          expr: |
+            robot_shop:payment_error_ratio:rate5m > 0.01
+            and
+            sum(rate(http_requests_total{service="payment"}[5m])) > 0
+          for: 5m
+          labels:
+            severity: warning
+            service: payment
+            slo: availability
+          annotations:
+            summary: Payment service is consuming its 99% availability error budget
+            description: More than 1% of payment requests returned 5xx responses over the last five minutes.
+            runbook_url: https://github.com/Radiant-O/robot-shop/blob/master/docs/runbooks/payment-error-budget.md
+{{- end }}

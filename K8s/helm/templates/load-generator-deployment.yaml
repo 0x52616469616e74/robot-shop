@@ -1,0 +1,38 @@
+{{- if .Values.loadGenerator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  labels:
+    service: load-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: load-generator
+  template:
+    metadata:
+      labels:
+        service: load-generator
+    spec:
+      containers:
+        - name: load-generator
+          image: {{ .Values.loadGenerator.image }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HOST
+              value: http://web:8080/
+            - name: NUM_CLIENTS
+              value: {{ .Values.loadGenerator.clients | quote }}
+            - name: SILENT
+              value: "1"
+            - name: ERROR
+              value: {{ .Values.loadGenerator.errors | quote }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+{{- end }}

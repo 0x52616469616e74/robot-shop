@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: robot-shop-observability-dashboard
+  namespace: observability
+  labels:
+    grafana_dashboard: "1"
+data:
+  robot-shop.json: |-
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"unit": "reqps"}},
+          "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+          "id": 1,
+          "targets": [{"expr": "sum(rate(http_requests_total{service=\"payment\"}[5m]))", "legendFormat": "requests/sec", "refId": "A"}],
+          "title": "Payment request rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"max": 100, "min": 0, "unit": "percent"}},
+          "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0},
+          "id": 2,
+          "targets": [{"expr": "100 * robot_shop:payment_error_ratio:rate5m", "legendFormat": "5xx error rate", "refId": "A"}],
+          "title": "Payment error rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"unit": "s"}},
+          "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0},
+          "id": 3,
+          "targets": [{"expr": "robot_shop:payment_latency_p95_seconds:rate5m", "legendFormat": "p95", "refId": "A"}],
+          "title": "Payment p95 latency",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 12, "w": 24, "x": 0, "y": 8},
+          "id": 4,
+          "targets": [{"expr": "{namespace=\"robot-shop\"}", "refId": "A"}],
+          "title": "Robot Shop logs",
+          "type": "logs"
+        }
+      ],
+      "refresh": "15s",
+      "schemaVersion": 41,
+      "tags": ["robot-shop", "capstone"],
+      "templating": {"list": []},
+      "time": {"from": "now-1h", "to": "now"},
+      "title": "Robot Shop Observability",
+      "uid": "robot-shop-observability",
+      "version": 1
+    }

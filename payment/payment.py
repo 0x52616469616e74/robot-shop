@@ -1,6 +1,3 @@
-import random
-
-import instana
 import os
 import sys
 import time
@@ -8,18 +5,31 @@ import logging
 import uuid
 import json
 import requests
-import traceback
 from flask import Flask
 from flask import Response
+from flask import g
 from flask import request
 from flask import jsonify
 from rabbitmq import Publisher
-# Prometheus
 import prometheus_client
 from prometheus_client import Counter, Histogram
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
+
+resource = Resource.create({"service.name": os.getenv("OTEL_SERVICE_NAME", "robot-shop-payment")})
+tracer_provider = TracerProvider(resource=resource)
+tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+trace.set_tracer_provider(tracer_provider)
+FlaskInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
 
 CART = os.getenv('CART_HOST', 'cart')
 USER = os.getenv('USER_HOST', 'user')
@@ -30,6 +40,40 @@ PromMetrics = {}
 PromMetrics['SOLD_COUNTER'] = Counter('sold_count', 'Running count of items sold')
 PromMetrics['AUS'] = Histogram('units_sold', 'Avergae Unit Sale', buckets=(1, 2, 5, 10, 100))
 PromMetrics['AVS'] = Histogram('cart_value', 'Avergae Value Sale', buckets=(100, 200, 500, 1000, 2000, 5000, 10000))
+PromMetrics['HTTP_REQUESTS'] = Counter(
+    'http_requests',
+    'HTTP requests handled by the payment service',
+    ['service', 'method', 'route', 'status_code'],
+)
+PromMetrics['HTTP_DURATION'] = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration in seconds',
+    ['service', 'method', 'route'],
+    buckets=(0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5),
+)
+
+
+@app.before_request
+def start_request_timer():
+    g.request_started_at = time.perf_counter()
+
+
+@app.after_request
+def record_request_metrics(response):
+    route = request.url_rule.rule if request.url_rule else 'unmatched'
+    labels = {
+        'service': 'payment',
+        'method': request.method,
+        'route': route,
+    }
+    PromMetrics['HTTP_REQUESTS'].labels(
+        status_code=str(response.status_code),
+        **labels,
+    ).inc()
+    PromMetrics['HTTP_DURATION'].labels(**labels).observe(
+        time.perf_counter() - g.request_started_at
+    )
+    return response
 
 
 @app.errorhandler(Exception)
@@ -76,7 +120,7 @@ def pay(id):
             has_shipping = True
 
     if cart.get('total', 0) == 0 or has_shipping == False:
-        app.logger.warn('cart not valid')
+        app.logger.warning('cart not valid')
         return 'cart not valid', 400
 
     # dummy call to payment gateway, hope they dont object

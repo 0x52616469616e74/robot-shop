@@ -3,3 +3,10 @@
 *-private.*
 vendor/
 Gopkg.lock
+.tmp-*
+__pycache__/
+*.pyc
+.venv/
+.env.local
+docs/evidence/*.png
+docs/evidence/*.jpg

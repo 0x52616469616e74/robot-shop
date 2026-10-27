@@ -4,6 +4,7 @@ metadata:
   name: payment
   labels:
     service: payment
+    observability: prometheus
 spec:
   ports:
   - name: http

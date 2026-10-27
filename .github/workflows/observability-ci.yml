@@ -1,0 +1,135 @@
+name: Observability CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: observability-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PAYMENT_IMAGE: ghcr.io/radiant-o/robot-shop-payment
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: payment/requirements.txt
+
+      - name: Test OpenTelemetry payment service
+        run: |
+          python -m pip install --requirement payment/requirements.txt
+          python -m compileall -q payment
+          PYTHONPATH=payment python -m unittest discover --start-directory payment --pattern 'test_*.py'
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.22.1
+
+      - name: Validate application chart
+        run: |
+          helm lint ./K8s/helm
+          helm template robot-shop ./K8s/helm --namespace robot-shop > /tmp/robot-shop.yaml
+          test -s /tmp/robot-shop.yaml
+
+      - name: Validate observability chart values
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add fluent https://fluent.github.io/helm-charts
+          helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+          helm template monitoring prometheus-community/kube-prometheus-stack --version 92.14.0 --namespace observability --values observability/kube-prometheus-stack-values.yaml > /tmp/monitoring.yaml
+          helm template loki grafana/loki --version 7.5.0 --namespace observability --values observability/loki-values.yaml > /tmp/loki.yaml
+          helm template fluent-bit fluent/fluent-bit --version 0.58.3 --namespace observability --values observability/fluent-bit-values.yaml > /tmp/fluent-bit.yaml
+          helm template jaeger jaegertracing/jaeger --version 4.16.1 --namespace observability --values observability/jaeger-values.yaml > /tmp/jaeger.yaml
+          test -s /tmp/monitoring.yaml
+          test -s /tmp/loki.yaml
+          test -s /tmp/fluent-bit.yaml
+          test -s /tmp/jaeger.yaml
+
+      - name: Scan payment source and dependencies
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: payment
+          scanners: vuln,secret
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Scan observability configuration
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: observability
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+
+  payment-image:
+    needs: validate
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4.4.1
+
+      - name: Build image for scanning
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: ./payment
+          load: true
+          push: false
+          tags: robot-shop/payment:${{ github.sha }}
+          cache-from: type=gha,scope=payment
+          cache-to: type=gha,mode=max,scope=payment
+
+      - name: Scan payment image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: robot-shop/payment:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish immutable payment image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: ./payment
+          push: true
+          provenance: true
+          sbom: true
+          tags: |
+            ${{ env.PAYMENT_IMAGE }}:${{ github.sha }}
+            ${{ env.PAYMENT_IMAGE }}:main
+          cache-from: type=gha,scope=payment
+          cache-to: type=gha,mode=max,scope=payment

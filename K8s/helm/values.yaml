@@ -1,28 +1,21 @@
-# Registry and repository for Docker images
-# Default is docker/robotshop/image:latest
 image:
   repo: robotshop
   version: latest
   pullPolicy: IfNotPresent
 
-# EUM configuration
-# Provide your key and set the endpoint
-eum:
-  key: null
-  url: https://eum-eu-west-1.instana.io
-  #url: https://eum-us-west-2.instana.io
-
-# Pod Security Policy
-psp:
-  enabled: false
-
-# For the mini ones minikube, minishift set to true
 nodeport: false
-
-# "special" Openshift. Set to true when deploying to any openshift flavour
 openshift: false
-
 ocCreateRoute: false
+
+monitoring:
+  enabled: true
+  prometheusRelease: monitoring
+
+loadGenerator:
+  enabled: true
+  image: robotshop/rs-load:latest
+  clients: 15
+  errors: 1
 
 ######################################
 # Affinities for individual workloads
@@ -44,18 +37,24 @@ mongodb: {}
 mysql: {}
 
 payment:
+  image:
+    repository: ghcr.io/radiant-o/robot-shop-payment
+    tag: main
+  otelEndpoint: http://jaeger.observability.svc.cluster.local:4318/v1/traces
   # Alternative payment gateway URL
   # Default is https://www.paypal.com
   gateway: null
   #gateway: https://www.worldpay.com
 
-rabbitmq: {}
+rabbitmq:
+  image: rabbitmq:4.2.4-management-alpine
 
 ratings: {}
 
 redis:
   # Storage class to use with redis statefulset.
-  storageClassName: standard
+  storageClassName: gp2
+  image: redis:8.4.7-alpine3.22
 
 shipping: {}
 
