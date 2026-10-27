@@ -2,6 +2,8 @@
 
 Do not capture webhook URLs, tokens, cloud account IDs, or other secrets.
 
+The completed local runtime and security checks are recorded in [local-validation-2026-10-27.md](local-validation-2026-10-27.md). Use the checklist below for the final EKS and Slack screenshots.
+
 | Evidence | Suggested filename |
 | --- | --- |
 | Healthy Robot Shop and observability pods | `01-cluster-health.png` |
