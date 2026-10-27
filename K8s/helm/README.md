@@ -26,6 +26,6 @@ helm upgrade --install robot-shop ./K8s/helm \
   --set monitoring.enabled=false
 ```
 
-The payment image is maintained by this repository and defaults to `ghcr.io/radiant-o/robot-shop-payment:main`. Other application images remain the public Robot Shop demonstration images. Production deployments should replace mutable tags with tested immutable tags or digests.
+The payment image is maintained by this repository and defaults to `ghcr.io/0x52616469616e74/robot-shop-payment:main`. Other application images remain the public Robot Shop demonstration images. Production deployments should replace mutable tags with tested immutable tags or digests.
 
 The chart no longer contains PodSecurityPolicy or Instana agent settings. PodSecurityPolicy was removed from Kubernetes, and this capstone uses Prometheus, Loki, and OpenTelemetry instead.

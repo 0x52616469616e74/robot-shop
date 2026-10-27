@@ -2,6 +2,6 @@ apiVersion: v2
 name: robot-shop
 version: 2.0.0
 appVersion: "1.0.0"
-home: https://github.com/Radiant-O/robot-shop
+home: https://github.com/0x52616469616e74/robot-shop
 description: Robot Shop microservices with Prometheus, Loki, and OpenTelemetry integration
 

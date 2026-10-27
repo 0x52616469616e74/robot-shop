@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 env:
-  PAYMENT_IMAGE: ghcr.io/radiant-o/robot-shop-payment
+  PAYMENT_IMAGE: ghcr.io/0x52616469616e74/robot-shop-payment
 
 jobs:
   validate:

@@ -52,5 +52,5 @@ spec:
           annotations:
             summary: Payment service is consuming its 99% availability error budget
             description: More than 1% of payment requests returned 5xx responses over the last five minutes.
-            runbook_url: https://github.com/Radiant-O/robot-shop/blob/master/docs/runbooks/payment-error-budget.md
+            runbook_url: https://github.com/0x52616469616e74/robot-shop/blob/master/docs/runbooks/payment-error-budget.md
 {{- end }}

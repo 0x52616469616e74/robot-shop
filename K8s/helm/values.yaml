@@ -38,7 +38,7 @@ mysql: {}
 
 payment:
   image:
-    repository: ghcr.io/radiant-o/robot-shop-payment
+    repository: ghcr.io/0x52616469616e74/robot-shop-payment
     tag: main
   otelEndpoint: http://jaeger.observability.svc.cluster.local:4318/v1/traces
   # Alternative payment gateway URL

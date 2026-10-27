@@ -1,6 +1,6 @@
 # DevOps Capstone 2 — Robot Shop Observability
 
-[![Observability CI](https://github.com/Radiant-O/robot-shop/actions/workflows/observability-ci.yml/badge.svg)](https://github.com/Radiant-O/robot-shop/actions/workflows/observability-ci.yml)
+[![Observability CI](https://github.com/0x52616469616e74/robot-shop/actions/workflows/observability-ci.yml/badge.svg)](https://github.com/0x52616469616e74/robot-shop/actions/workflows/observability-ci.yml)
 
 This fork turns the Robot Shop microservices application into an observability capstone on Amazon EKS. It provides metrics and alerting with Prometheus, dashboards with Grafana, cluster log aggregation with Fluent Bit and Loki, and OpenTelemetry traces from the payment service to Jaeger.
 
@@ -27,7 +27,7 @@ The archived upstream service images are demonstration software; see [docs/secur
 - `kubectl` connected to the intended cluster.
 - Helm 3.
 - A strong Grafana administrator password held outside this repository.
-- The `ghcr.io/radiant-o/robot-shop-payment:main` package made public after its first successful CI build.
+- The `ghcr.io/0x52616469616e74/robot-shop-payment:main` package made public after its first successful CI build.
 
 ## Install
 

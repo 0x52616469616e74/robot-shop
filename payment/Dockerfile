@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir --requirement requirements.txt
 
 COPY --chown=10001:10001 *.py ./
 
-LABEL org.opencontainers.image.source="https://github.com/Radiant-O/robot-shop"
+LABEL org.opencontainers.image.source="https://github.com/0x52616469616e74/robot-shop"
 
 ENV SHOP_PAYMENT_PORT=8080 \
     PYTHONUNBUFFERED=1
