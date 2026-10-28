@@ -58,7 +58,16 @@ redis:
   persistence:
     enabled: true
 
-shipping: {}
+shipping:
+  # The image runs java -Xmx768m; heap plus metaspace and thread stacks
+  # exceed 1000Mi under load (OOMKilled), and 200m CPU starves the JVM.
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1536Mi
+    requests:
+      cpu: 200m
+      memory: 1Gi
 
 user: {}
 
