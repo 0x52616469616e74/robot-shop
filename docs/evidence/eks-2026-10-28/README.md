@@ -4,7 +4,7 @@ Robot Shop and the observability stack ran on the Capstone 1 EKS cluster (`radia
 
 | Requirement (brief) | Evidence |
 | --- | --- |
-| 1. Robot Shop + load-gen on Capstone 1 cluster, pods healthy | [01-cluster-health.txt](01-cluster-health.txt), [05-final-state.md](05-final-state.md), [02-robot-shop.png](02-robot-shop.png) |
+| 1. Robot Shop + load-gen on Capstone 1 cluster, pods healthy | [01-cluster-health.txt](01-cluster-health.txt), [05-final-state.md](05-final-state.md) (all 13 Robot Shop pods Ready; web served 1,340 HTTP 200s in two minutes of load-gen traffic, 0 5xx after recovery) |
 | 2. kube-prometheus-stack + requests/errors/latency dashboard | Dashboard as code: [grafana-dashboard.yaml](../../../observability/grafana-dashboard.yaml); live SLIs in [02-incident-detected.md](02-incident-detected.md), [08-prometheus-error-ratio.png](08-prometheus-error-ratio.png) |
 | 3. Fluent Bit → Loki, searchable by service and level | LogQL by `container` + extracted `level` in [02-incident-detected.md](02-incident-detected.md) (ERROR lines) and [04-recovery.md](04-recovery.md) (volume by level) |
 | 4. One trace in Jaeger | [05-jaeger-trace-200.png](05-jaeger-trace-200.png) (checkout with user/gateway/cart spans), [05-jaeger-trace-500.png](05-jaeger-trace-500.png) (failing request) |
