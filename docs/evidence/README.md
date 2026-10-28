@@ -7,7 +7,7 @@ The completed local runtime and security checks are recorded in [local-validatio
 | Evidence | Suggested filename |
 | --- | --- |
 | Healthy Robot Shop and observability pods | `01-cluster-health.png` |
-| Robot Shop web UI under generated traffic | `02-robot-shop.png` |
+| Robot Shop web UI | [`02-robot-shop.png`](02-robot-shop.png) |
 | Grafana request, error, and latency panels | `03-grafana-golden-signals.png` |
 | Loki log query scoped to payment | `04-loki-payment-logs.png` |
 | Jaeger payment trace with downstream request | `05-jaeger-trace.png` |
