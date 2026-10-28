@@ -98,8 +98,13 @@ def metrics():
 @app.route('/pay/<id>', methods=['POST'])
 def pay(id):
     app.logger.info('payment for {}'.format(id))
-    cart = request.get_json()
+    cart = request.get_json(silent=True)
     app.logger.info(cart)
+
+    # reject malformed carts as client errors instead of crashing with a 500
+    if not isinstance(cart, dict) or not isinstance(cart.get('items'), list):
+        app.logger.warning('cart not valid: items missing')
+        return 'cart not valid', 400
 
     anonymous_user = True
 

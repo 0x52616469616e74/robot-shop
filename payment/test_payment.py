@@ -29,6 +29,16 @@ class PaymentTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('http_requests_total', response.get_data(as_text=True))
 
+    def test_pay_rejects_cart_without_items(self):
+        response = self.client.post('/pay/partner-57', json={'total': 0, 'tax': 0})
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_pay_rejects_non_json_body(self):
+        response = self.client.post('/pay/partner-57', data='not json')
+
+        self.assertEqual(response.status_code, 400)
+
 
 if __name__ == '__main__':
     unittest.main()
