@@ -1,0 +1,47 @@
+Captured: 2026-10-28T10:23:46Z
+$ kubectl get nodes -o wide
+NAME STATUS VERSION INTERNAL-IP
+ip-172-31-31-41.ec2.internal Ready v1.36.5-eks-577a51e 172.31.31.41
+ip-172-31-70-226.ec2.internal Ready v1.36.5-eks-577a51e 172.31.70.226
+
+$ helm list -A
+NAME      	NAMESPACE    	REVISION	UPDATED                              	STATUS  	CHART                        	APP VERSION
+fluent-bit	observability	1       	2026-10-28 09:33:04.0176049 +0100 WAT	deployed	fluent-bit-0.58.3            	5.1.3      
+jaeger    	observability	1       	2026-10-28 09:29:38.9259835 +0100 WAT	deployed	jaeger-4.16.1                	2.22.0     
+loki      	observability	1       	2026-10-28 09:31:55.6207296 +0100 WAT	deployed	loki-7.5.0                   	3.6.16     
+monitoring	observability	1       	2026-10-28 09:27:14.7183362 +0100 WAT	deployed	kube-prometheus-stack-92.14.0	v0.94.2    
+robot-shop	robot-shop   	1       	2026-10-28 09:31:53.7818458 +0100 WAT	deployed	robot-shop-2.0.0             	1.0.0      
+voting-app	voting-app   	4       	2026-10-28 09:23:04.4219196 +0100 WAT	deployed	voting-app-0.1.0             	1.0.0      
+
+$ kubectl get pods -n robot-shop
+NAME                              READY   STATUS    RESTARTS      AGE
+cart-64646c98c7-8bf8w             1/1     Running   0             111m
+catalogue-97b55667d-zdkhq         1/1     Running   0             111m
+dispatch-7d4bc4dbf4-5sbt9         1/1     Running   0             111m
+load-generator-6c69f75764-szjtq   1/1     Running   8 (81s ago)   111m
+mongodb-84fc44bc44-4v2cf          1/1     Running   0             111m
+mysql-8577cbdf68-8j4g4            1/1     Running   0             111m
+payment-65459b7758-2sh82          1/1     Running   0             111m
+rabbitmq-6666b85bfd-9lskg         1/1     Running   0             111m
+ratings-5547975d95-nr8rk          1/1     Running   0             111m
+redis-0                           1/1     Running   0             111m
+shipping-64755d9b5-7st26          1/1     Running   2 (27m ago)   111m
+user-5475f46f6b-4nnqv             1/1     Running   0             111m
+web-749bcdf597-27p82              1/1     Running   0             111m
+
+$ kubectl get pods -n observability
+NAME                                                     READY   STATUS    RESTARTS   AGE
+alertmanager-monitoring-kube-prometheus-alertmanager-0   2/2     Running   0          115m
+fluent-bit-2w56j                                         1/1     Running   0          110m
+fluent-bit-qg9c7                                         1/1     Running   0          110m
+jaeger-868c46974f-fvlb6                                  1/1     Running   0          114m
+loki-0                                                   2/2     Running   0          111m
+loki-canary-4dh9g                                        1/1     Running   0          111m
+loki-canary-p7rhv                                        1/1     Running   0          111m
+loki-gateway-fd955697c-cv2ks                             1/1     Running   0          111m
+monitoring-grafana-78d8db75b8-557bs                      3/3     Running   0          115m
+monitoring-kube-prometheus-operator-64d77856b5-wxx6r     1/1     Running   0          115m
+monitoring-kube-state-metrics-764584797b-djr4k           1/1     Running   0          115m
+monitoring-prometheus-node-exporter-9pbvt                1/1     Running   0          115m
+monitoring-prometheus-node-exporter-hk6g2                1/1     Running   0          115m
+prometheus-monitoring-kube-prometheus-prometheus-0       2/2     Running   0          115m

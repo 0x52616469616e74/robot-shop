@@ -2,7 +2,7 @@
 
 Do not capture webhook URLs, tokens, cloud account IDs, or other secrets.
 
-The completed local runtime and security checks are recorded in [local-validation-2026-10-27.md](local-validation-2026-10-27.md). Use the checklist below for the final EKS and Slack screenshots.
+The completed local runtime and security checks are recorded in [local-validation-2026-10-27.md](local-validation-2026-10-27.md). The live EKS run, incident drill and Slack alert are recorded in [eks-2026-10-28/](eks-2026-10-28/README.md). The checklist below lists the screenshot names used there.
 
 | Evidence | Suggested filename |
 | --- | --- |
