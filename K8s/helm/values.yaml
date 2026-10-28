@@ -55,6 +55,8 @@ redis:
   # Storage class to use with redis statefulset.
   storageClassName: gp2
   image: redis:8.4.7-alpine3.22
+  persistence:
+    enabled: true
 
 shipping: {}
 

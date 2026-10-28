@@ -1,0 +1,6 @@
+# Time-bounded EKS demonstration override. The base values retain durable
+# production storage; this cluster is destroyed after evidence capture.
+prometheus:
+  prometheusSpec:
+    storageSpec: null
+

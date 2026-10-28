@@ -32,6 +32,11 @@ spec:
             cpu: 100m
             memory: 50Mi
       restartPolicy: Always
+      {{- if not .Values.redis.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
       {{- with .Values.redis.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
@@ -44,6 +49,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  {{- if .Values.redis.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -56,4 +62,5 @@ spec:
         resources:
           requests:
             storage: 1Gi
+  {{- end }}
 
