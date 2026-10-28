@@ -25,6 +25,10 @@ alertmanager:
     alertmanagerConfigNamespaceSelector:
       matchLabels:
         observability: enabled
+    # SLO alerts carry no namespace label; without this the operator adds a
+    # namespace="observability" matcher and the Slack route never matches.
+    alertmanagerConfigMatcherStrategy:
+      type: None
     resources:
       requests:
         cpu: 100m
